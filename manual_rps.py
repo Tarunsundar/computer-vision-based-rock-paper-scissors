@@ -4,7 +4,6 @@ This has been developed in python, Hope you enjoy this..
 '''
 
 import random
-from re import S
 from typing_extensions import Self
 import sys
 
