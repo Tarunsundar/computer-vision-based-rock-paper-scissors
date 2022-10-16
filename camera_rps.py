@@ -30,6 +30,7 @@ computer_wins = 0
 player_wins = 0
 rps_choice = ["rock", "paper", "scissors", "nothing"]
 rps_choice_2 = ["rock", "paper", "scissors"]
+prediction = [0]
 
 class Rps:
     winner_Index = 0
@@ -58,6 +59,7 @@ class Rps:
         return self.user_choice
 
     def get_prediction(self):
+        global prediction
         ret, frame = cap.read()
         resized_frame = cv2.resize(frame, (224, 224), interpolation = cv2.INTER_AREA)
         image_np = np.array(resized_frame)        
@@ -65,19 +67,21 @@ class Rps:
         data[0] = normalized_image
         prediction = model.predict(data)
         cv2.imshow('frame', frame)
-        print("prediction is", prediction)
         return prediction
 
     def countdown(self):
+        global prediction
         stime = time.time()
         ctime = 0.0
-        print("please decide your move within next 3 seconds")
+        print("please decide your move within next 5 seconds")
         while(ctime <= stime + 2):
             ctime = time.time()
             self.get_prediction()
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
         print("Time's up, show your move now")
+        print("Prediction will be as following, 1st Rock, 2nd Paper. 3rd Scissors and 4th nothing \n")
+        print("prediction is ", prediction)
         return self.get_prediction()
 
     def get_result(self):
@@ -91,16 +95,16 @@ class Rps:
         elif (self.CPU_choice == "rock" and self.user_choice == "paper") or (self.CPU_choice == "scissors" and self.user_choice == "rock") or (self.CPU_choice == "paper" and self.user_choice == "scissors"):
             print("wooh You won, Congrats!!\n")
             player_wins += 1
-            self.winner_Index = self.winner[1]
+            self.winner_Index = 1
         elif (self.user_choice == "nothing"):
             print("sorry, we couldn't recogonize your move. show your move properly")
-            self.winner_Index = self.winner[2]
+            self.winner_Index = 2
         else:
             print("Oops that was a draw \n")
-            self.winner_Index = self.winner[2]
+            self.winner_Index = 2
         print("player wins =", player_wins)
         print("\ncomputer wins =", computer_wins)
-        time.sleep(3)
+        time.sleep(5)
         print("\n")
         return self.winner_Index
 
