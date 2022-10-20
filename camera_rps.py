@@ -20,32 +20,33 @@ paper and scissors game.
 import random
 import sys
 import time
+from xml.etree.ElementPath import prepare_predicate
 import cv2
 from keras.models import load_model
 import numpy as np
 model = load_model('keras_model.h5')
 cap = cv2.VideoCapture(0)
 data = np.ndarray(shape=(1, 224, 224, 3), dtype=np.float32)
-computer_wins = 0
-player_wins = 0
-rps_choice = ["rock", "paper", "scissors", "nothing"]
-rps_choice_2 = ["rock", "paper", "scissors"]
-prediction = [0]
 
 class Rps:
-    winner_Index = 0
-    winner = ["Computer", "User", "Draw"]
-    CPU_choice = rps_choice_2
-    user_choice = rps_choice
    
+    def __init__(self):
+        self.winner_Index = 0
+        self.winner = ["Computer", "User", "Draw"]
+        self.computer_wins = 0
+        self.player_wins = 0
+        self.rps_choice = ["rock", "paper", "scissors", "nothing"]
+        self.prediction = [0]
+        self.user_choice = "nothing"
+        self.CPU_choice = "nothing"
+
     def get_computer_choice(self):
-        global rps_choice_2
-        CPU_choice = random.choice(rps_choice_2)
+        CPU_choice = random.choice(self.rps_choice[0:3])
         return CPU_choice
 
     def get_user_choice(self):
-        prediction = self.get_prediction()
-        index = np.argmax(prediction[0])
+        self.prediction = self.get_prediction()
+        index = np.argmax(self.prediction[0])
         print("index =", index)
         if(index == 0):
             self.user_choice = "rock"
@@ -59,7 +60,6 @@ class Rps:
         return self.user_choice
 
     def get_prediction(self):
-        global prediction
         ret, frame = cap.read()
         resized_frame = cv2.resize(frame, (224, 224), interpolation = cv2.INTER_AREA)
         image_np = np.array(resized_frame)        
@@ -70,7 +70,6 @@ class Rps:
         return prediction
 
     def countdown(self):
-        global prediction
         stime = time.time()
         ctime = 0.0
         print("please decide your move within next 5 seconds")
@@ -81,12 +80,10 @@ class Rps:
                 break
         print("Time's up, show your move now")
         print("Prediction will be as following, 1st Rock, 2nd Paper. 3rd Scissors and 4th nothing \n")
-        print("prediction is ", prediction)
+        print("prediction is ", self.prediction)
         return self.get_prediction()
 
     def get_result(self):
-        global computer_wins
-        global player_wins
         print("\n CPU chose ", self.CPU_choice)
         if (self.CPU_choice =="rock" and self.user_choice == "scissors") or (self.CPU_choice == "scissors" and self.user_choice == "paper") or (self.CPU_choice == "paper" and self.user_choice == "rock"): 
             print("Computer wins, better luck next time\n")
@@ -102,16 +99,14 @@ class Rps:
         else:
             print("Oops that was a draw \n")
             self.winner_Index = 2
-        print("player wins =", player_wins)
-        print("\ncomputer wins =", computer_wins)
+        print("player wins =", self.player_wins)
+        print("\ncomputer wins =", self.computer_wins)
         time.sleep(5)
         print("\n")
         return self.winner_Index
 
     def play(self):
-        global computer_wins
-        global player_wins
-        while(player_wins < 3 and computer_wins < 3):
+        while(self.player_wins < 3 and self.computer_wins < 3):
             self.CPU_choice = self.get_computer_choice()
             self.countdown()
             self.user_choice = self.get_user_choice()
@@ -124,3 +119,4 @@ class Rps:
 if __name__ == '__main__':
     game = Rps()
     game.play()
+    game.winner
